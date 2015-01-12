@@ -36,7 +36,8 @@ class KiyohCustomerReview extends Module {
     private $id_country = '';
     private $config = null;
 
-    public function __construct() {
+    public function __construct() 
+    {
         $this->name = 'kiyohcustomerreview';
         $this->tab = 'advertising_marketing';
         $this->version = '1.0';
@@ -61,11 +62,21 @@ class KiyohCustomerReview extends Module {
             require(_PS_MODULE_DIR_ . $this->name . '/backward_compatibility/backward.php');
     }
 
-    private function getPsVersion() {
+    /**
+     * Get Ps Version
+     * @return float
+     */
+    private function getPsVersion() 
+    {
         return $this->psv = (float) Tools::substr(_PS_VERSION_, 0, 3);
     }
 
-    public function install() {
+    /**
+     * Install
+     * @return boolean
+     */
+    public function install() 
+    {
         if (!parent::install())
             return false;
         if ($this->psv >= 1.5) {
@@ -89,14 +100,24 @@ class KiyohCustomerReview extends Module {
                     ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8');
     }
 
-    public function uninstall() {
+    /**
+     * Uninstall
+     * @return boolean
+     */
+    public function uninstall() 
+    {
         if (!parent::uninstall())
             return false;
         Configuration::deleteByName('KIYOH_SETTINGS');
         return (Db::getInstance()->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'kiyohcustomerreview`'));
     }
 
-    public function getContent() {
+    /**
+     * Get Content
+     * @return string
+     */
+    public function getContent() 
+    {
         $output = '<h2>Kiyoh Customer Review</h2>';
         if (Tools::isSubmit('submitKiyoh')) {
             $this->config = array(
@@ -120,7 +141,12 @@ class KiyohCustomerReview extends Module {
         return $output . $this->displayForm();
     }
 
-    public function displayForm() {
+    /**
+     * Display Form
+     * @return string
+     */
+    public function displayForm() 
+    {
         $output = '
 		<form action="' . Tools::safeOutput($_SERVER['REQUEST_URI']) . '" method="post">
 			<fieldset class="width2">
@@ -214,8 +240,14 @@ class KiyohCustomerReview extends Module {
 
         return $output;
     }
-
-    public function selectHtml(array $config) {
+    
+    /**
+     * Select Html
+     * @param array $config
+     * @return string
+     */
+    public function selectHtml(array $config) 
+    {
         $multiple = '';
         if (isset($config['multiple'])) {
             $multiple = $config['multiple'];
@@ -238,31 +270,17 @@ class KiyohCustomerReview extends Module {
             $html .= $config['notice'];
         }
         $html .= '</div>';
-        /** if (isset($config['depends'])){
-          $name = $config['name'];
-          foreach ($config['depends'] as $dep=>$val){
-          $html .= '<script>'
-          . '//<![CDATA['."\n"
-          . ';(function(){'."\n"
-          . '  jQuery(\'#kiyoh_'.$name.'\').hide();'."\n"
-          . '  jQuery(\'#kiyoh_'.$dep.'\').on(\'change\',function(){'."\n"
-          . '    var tmp = jQuery(\'option:selected\',this).val();'."\n"
-          . '    if (tmp==\''.$val.'\'){'."\n"
-          . '      jQuery(\'#kiyoh_'.$name.'\').slideDown();'."\n"
-          . '    } else {'."\n"
-          . '      jQuery(\'#kiyoh_'.$name.'\').slideUp();'."\n"
-          . '    }'."\n"
-          . '  }).trigger(\'change\');'."\n"
-          . '})();'."\n"
-          . '//]]>'
-          . '</script>';
-          }
-          } * */
         $html .= '</div>';
         return $html;
     }
 
-    public function hookActionOrderStatusUpdate($params) {
+    /**
+     * Hook ActionOrderStatusUpdate
+     * @param mixed $params params
+     * @return string|null
+     */
+    public function hookActionOrderStatusUpdate($params) 
+    {
         //$event = $this->config['KIYOH_EVENT'];
         $dispatched_order_statuses = $this->config['ORDER_STATUS'];
         $object = $params['newOrderStatus'];
@@ -274,11 +292,23 @@ class KiyohCustomerReview extends Module {
         //}
     }
 
-    public function hookUpdateOrderStatus($params) {
+    /**
+     * Hook Update OrderStatus
+     * @param mixed $params params
+     * @return string|null
+     */
+    public function hookUpdateOrderStatus($params) 
+    {
         $this->hookActionOrderStatusUpdate($params);
     }
 
-    protected function sendRequest($order_id) {
+    /**
+     * Sending request
+     * @param integer $order_id order
+     * @return boolean
+     */
+    protected function sendRequest($order_id) 
+    {
         $order = new Order((int) $order_id);
         if ($this->psv >= 1.5) {
             $customer = $order->getCustomer();
@@ -299,7 +329,9 @@ class KiyohCustomerReview extends Module {
         if (!$email || !$kiyoh_server || !$kiyoh_user || !$kiyoh_connector)
             return false;
 
-        $url = 'https://www.' . $kiyoh_server . '/set.php?user=' . $kiyoh_user . '&connector=' . $kiyoh_connector . '&action=' . $kiyoh_action . '&targetMail=' . $email . '&delay=' . $kiyoh_delay;
+        $url = 'https://www.'.$kiyoh_server.'/set.php?user='.$kiyoh_user.
+                '&connector='.$kiyoh_connector.'&action='.$kiyoh_action.
+                '&targetMail='.$email.'&delay='.$kiyoh_delay;
 
         // create a new cURL resource
         $curl = curl_init();
@@ -320,9 +352,9 @@ class KiyohCustomerReview extends Module {
         }
         if ($err || $response !== 'OK' || $this->config['DEBUG']) {
             if (class_exists('PrestaShopLogger')) {
-                PrestaShopLogger::addLog('Curl Error:' . curl_error($curl) . '---Response:' . $response . '---Url:' . $url, 2, null, $this->name);
+                PrestaShopLogger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
             } elseif (class_exists('Logger')) {
-                Logger::addLog('Curl Error:' . curl_error($curl) . '---Response:' . $response . '---Url:' . $url, 2, null, $this->name);
+                Logger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response .'---Url:'.$url, 2, null, $this->name);
             }
         }
         $result = true;
@@ -334,10 +366,17 @@ class KiyohCustomerReview extends Module {
         curl_close($curl);
         return $result;
     }
-
-    protected function isInvitationSent($customer_id, $id_shop) {
-        $sql = 'SELECT status FROM `' . _DB_PREFIX_ . 'kiyohcustomerreview`
-                            WHERE `id_customer` = ' . (int) $customer_id . ' AND `id_shop` = ' . (int) $id_shop;
+    
+    /**
+     * Check is invitation sent
+     * @param integer $customer_id customer
+     * @param integer $id_shop     shop
+     * @return boolean
+     */
+    protected function isInvitationSent($customer_id, $id_shop) 
+    {
+        $sql = 'SELECT status FROM `'._DB_PREFIX_.'kiyohcustomerreview`
+		WHERE `id_customer` = '.(int)$customer_id.' AND `id_shop` = '.(int) $id_shop;
 
         $result = Db::getInstance()->executeS($sql);
         if (count($result)) {
@@ -346,12 +385,17 @@ class KiyohCustomerReview extends Module {
         return false;
     }
 
-    protected function setInvitationSent($customer_id, $id_shop) {
-        $sql = 'INSERT INTO `' . _DB_PREFIX_ . 'kiyohcustomerreview`
-                            (`id_customer`, `status`, `id_shop`, `date_add`)
-			VALUES(' . (int) $customer_id . ', \'sent\', ' . (int) $id_shop . ', NOW())';
-
+    /**
+     * Seting Invitation Sent
+     * @param integer $customer_id customer
+     * @param integer $id_shop     shop
+     * @return string|null
+     */
+    protected function setInvitationSent($customer_id, $id_shop) 
+    {
+        $sql = 'INSERT INTO `'._DB_PREFIX_.'kiyohcustomerreview`
+            (`id_customer`, `status`, `id_shop`, `date_add`)
+            VALUES('.(int) $customer_id.', \'sent\', '.(int) $id_shop.', NOW())';
         Db::getInstance()->executeS($sql);
     }
-
 }
