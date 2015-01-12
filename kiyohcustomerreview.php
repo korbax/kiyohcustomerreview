@@ -38,12 +38,12 @@ if (!defined('_PS_VERSION_')) exit;
 class KiyohCustomerReview extends Module
 {
 
-        private $html = '';
-        private $query = '';
-        private $query_group_by = '';
-        private $option = '';
-        private $id_country = '';
-        private $config = null;
+    private $html = '';
+    private $query = '';
+    private $query_group_by = '';
+    private $option = '';
+    private $id_country = '';
+    private $config = null;
 
     /**
      * Construct
