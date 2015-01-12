@@ -25,8 +25,7 @@
 *  @link      URL http://interactivated.me
 */
 
-if (!defined('_PS_VERSION_'))
-    exit;
+if (!defined('_PS_VERSION_')) exit;
 
 /**
  * KiyohCustomerReview
@@ -40,7 +39,7 @@ class KiyohCustomerReview extends Module
 {
 
     private $html = '';
-    private $query = '';
+	private $query = '';
     private $query_group_by = '';
     private $option = '';
     private $id_country = '';
