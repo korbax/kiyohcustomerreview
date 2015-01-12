@@ -80,7 +80,7 @@ class KiyohCustomerReview extends Module
      */
     private function getPsVersion() 
     {
-        return $this->psv = (float) Tools::substr(_PS_VERSION_, 0, 3);
+        return $this->psv = (float)Tools::substr(_PS_VERSION_, 0, 3);
     }
 
     /**
@@ -228,8 +228,7 @@ class KiyohCustomerReview extends Module
             )
         );
 
-        $output .= '
-				<div class="margin-form"><input type="submit" name="submitKiyoh" value="' . $this->l('Save') . '" class="button" /></div>
+        $output .= '<div class="margin-form"><input type="submit" name="submitKiyoh" value="'.$this->l('Save').'" class="button" /></div>
 			</fieldset>
 		</form>';
 
@@ -247,9 +246,9 @@ class KiyohCustomerReview extends Module
         if (isset($config['multiple'])) {
             $multiple = $config['multiple'];
         }
-        $html = '<div id="kiyoh_' . $config['name'] . '"><label for="' . $config['name'] . '">' . $config['title'] . '</label>
+        $html = '<div id="kiyoh_'.$config['name'].'"><label for="'.$config['name'].'">'.$config['title'].'</label>
                         <div class="margin-form">
-                            <select name="' . $config['name'] . ($multiple ? '[]' : '') . '" ' . $multiple . '>';
+                            <select name="'.$config['name'].($multiple ? '[]' : '').'" '.$multiple.'>';
         $options = $config['options'];
         $tmp = $this->config[Tools::strtoupper($config['name'])];
         $config_value = Tools::getValue($config['name'], $tmp);
@@ -258,7 +257,7 @@ class KiyohCustomerReview extends Module
             if ($key == $config_value || $multiple && in_array($key, $config_value)) {
                 $selected = ' selected';
             }
-            $html .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
+            $html .= '<option value="'.$key.'"'.$selected.'>'.$value.'</option>';
         }
         $html .= '</select>';
         if (isset($config['notice'])) {
@@ -304,7 +303,7 @@ class KiyohCustomerReview extends Module
      */
     protected function sendRequest($order_id) 
     {
-        $order = new Order((int) $order_id);
+        $order = new Order((int)$order_id);
         if ($this->psv >= 1.5) {
             $customer = $order->getCustomer();
         } elseif ($this->psv < 1.5) {
@@ -371,7 +370,7 @@ class KiyohCustomerReview extends Module
     protected function isInvitationSent($customer_id, $id_shop) 
     {
         $sql = 'SELECT status FROM `'._DB_PREFIX_.'kiyohcustomerreview`
-		WHERE `id_customer` = '.(int)$customer_id.' AND `id_shop` = '.(int) $id_shop;
+		WHERE `id_customer` = '.(int)$customer_id.' AND `id_shop` = '.(int)$id_shop;
 
         $result = Db::getInstance()->executeS($sql);
         if (count($result)) return true;
@@ -388,7 +387,7 @@ class KiyohCustomerReview extends Module
     {
         $sql = 'INSERT INTO `'._DB_PREFIX_.'kiyohcustomerreview`
             (`id_customer`, `status`, `id_shop`, `date_add`)
-            VALUES('.(int) $customer_id.', \'sent\', '.(int) $id_shop.', NOW())';
+            VALUES('.(int)$customer_id.', \'sent\', '.(int)$id_shop.', NOW())';
         Db::getInstance()->executeS($sql);
     }
 }
