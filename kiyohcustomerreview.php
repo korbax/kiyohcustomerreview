@@ -123,7 +123,7 @@ class KiyohCustomerReview extends Module
         if (!parent::uninstall())
             return false;
         Configuration::deleteByName('KIYOH_SETTINGS');
-        return (Db::getInstance()->execute('DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'kiyohcustomerreview`'));
+        return (Db::getInstance()->execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'kiyohcustomerreview`'));
     }
 
     /**
@@ -148,11 +148,11 @@ class KiyohCustomerReview extends Module
             $output .= '
                         <div class="conf confirm">
                                 <img src="../img/admin/ok.gif" alt="" title="" />
-                                ' . $this->l('Settings updated') . '
+                                '.$this->l('Settings updated').'
                         </div>';
         }
 
-        return $output . $this->displayForm();
+        return $output.$this->displayForm();
     }
 
     /**
@@ -162,30 +162,30 @@ class KiyohCustomerReview extends Module
     public function displayForm() 
     {
         $output = '
-		<form action="' . Tools::safeOutput($_SERVER['REQUEST_URI']) . '" method="post">
+		<form action="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'" method="post">
 			<fieldset class="width2">
-				<legend><img src="../img/admin/cog.gif" alt="" class="middle" />' . $this->l('Settings') . '</legend>
+				<legend><img src="../img/admin/cog.gif" alt="" class="middle" />'.$this->l('Settings').'</legend>
 
-                                <label>' . $this->l('Module Version') . '</label>
+                                <label>'.$this->l('Module Version').'</label>
 				<div class="margin-form">
-					<p>' . $this->version . '</p>
+					<p>'.$this->version.'</p>
                                 </div>
-				<label>' . $this->l('Enter Connector') . '</label>
+				<label>'.$this->l('Enter Connector').'</label>
 				<div class="margin-form">
-					<input type="text" name="connector" value="' . Tools::safeOutput(Tools::getValue('connector', $this->config['CONNECTOR'])) . '" />
-					<p class="clear">' . $this->l('Enter here the KiyOh Connector Code from your KiyOh Account.') . '</p>
+					<input type="text" name="connector" value="'.Tools::safeOutput(Tools::getValue('connector', $this->config['CONNECTOR'])).'" />
+					<p class="clear">'.$this->l('Enter here the KiyOh Connector Code from your KiyOh Account.').'</p>
                                 </div>
 
-                                <label>' . $this->l('Company Email') . '</label>
+                                <label>'.$this->l('Company Email').'</label>
                                 <div class="margin-form">
-					<input type="text" name="company_email" value="' . Tools::safeOutput(Tools::getValue('company_email', $this->config['COMPANY_EMAIL'])) . '" />
-					<p class="clear">' . $this->l('Enter here your "company email address" as registered in your KiyOh account. Not the "user email address"! ') . '</p>
+					<input type="text" name="company_email" value="'.Tools::safeOutput(Tools::getValue('company_email', $this->config['COMPANY_EMAIL'])).'" />
+					<p class="clear">'.$this->l('Enter here your "company email address" as registered in your KiyOh account. Not the "user email address"! ').'</p>
                                 </div>
 
-                                <label>' . $this->l('Enter delay') . '</label>
+                                <label>'.$this->l('Enter delay').'</label>
                                 <div class="margin-form">
-					<input type="text" name="delay" value="' . Tools::safeOutput(Tools::getValue('delay', $this->config['DELAY'])) . '" />
-					<p class="clear">' . $this->l('Enter here the delay(number of days) after which you would like to send review invite email to your customer. This delay applies after customer event(order status change - to be selected at next option). You may enter 0 to send review invite email immediately after customer event(order status change).') . '</p>
+					<input type="text" name="delay" value="'.Tools::safeOutput(Tools::getValue('delay', $this->config['DELAY'])).'" />
+					<p class="clear">'.$this->l('Enter here the delay(number of days) after which you would like to send review invite email to your customer. This delay applies after customer event(order status change - to be selected at next option). You may enter 0 to send review invite email immediately after customer event(order status change).').'</p>
                                 </div>
 
                                 ';
@@ -202,7 +202,7 @@ class KiyohCustomerReview extends Module
                 'name' => 'order_status',
                 'options' => $options,
                 'multiple' => 'multiple',
-                'notice' => '<p class="clear">' . $this->l('Enter here the event after which you would like to send review invite email to your customer.') . '</p>'
+                'notice' => '<p class="clear">'.$this->l('Enter here the event after which you would like to send review invite email to your customer.').'</p>'
             )
         );
         unset($options);
@@ -305,15 +305,19 @@ class KiyohCustomerReview extends Module
     protected function sendRequest($order_id) 
     {
         $order = new Order((int)$order_id);
-        if ($this->psv >= 1.5) {
+        if ($this->psv >= 1.5)
+        {
             $customer = $order->getCustomer();
-        } elseif ($this->psv < 1.5) {
+        }
+        elseif ($this->psv < 1.5)
+        {
             $customer = new Customer($order->id_customer);
         }
 
         $email = $customer->email;
 
-        if ($this->isInvitationSent($customer->id, $order->id_shop)) {
+        if ($this->isInvitationSent($customer->id, $order->id_shop))
+        {
             return false; //invitation was already send
         }
         $kiyoh_server = $this->config['SERVER'];
@@ -341,21 +345,29 @@ class KiyohCustomerReview extends Module
         // grab URL and pass it to the browser
         $response = curl_exec($curl);
         $err = curl_errno($curl);
-        if (trim($response) !== 'OK') {
+        if (trim($response) !== 'OK')
+        {
             $this->config['WARNING'] = trim($response);
             Configuration::updateValue('KIYOH_SETTINGS', serialize($this->config));
         }
-        if ($err || $response !== 'OK' || $this->config['DEBUG']) {
-            if (class_exists('PrestaShopLogger')) {
+        if ($err || $response !== 'OK' || $this->config['DEBUG'])
+        {
+            if (class_exists('PrestaShopLogger'))
+            {
                 PrestaShopLogger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
-            } elseif (class_exists('Logger')) {
+            }
+            elseif (class_exists('Logger'))
+            {
                 Logger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response .'---Url:'.$url, 2, null, $this->name);
             }
         }
         $result = true;
-        if (!$err && $response == 'OK') {
+        if (!$err && $response == 'OK')
+        {
             $this->setInvitationSent($customer->id, $order->id_shop);
-        } else {
+        } 
+        else
+        {
             $result = false;
         }
         curl_close($curl);
