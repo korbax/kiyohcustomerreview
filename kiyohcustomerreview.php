@@ -1,7 +1,7 @@
 <?php
 /**
 * NOTICE OF LICENSE
-* 
+*
 *
 * This source file is subject to the Academic Free License (AFL 3.0)
 * that is bundled with this package in the file LICENSE.txt.
@@ -38,46 +38,46 @@ if (!defined('_PS_VERSION_')) exit;
 class KiyohCustomerReview extends Module
 {
 
-    private $html = '';
-    private $query = '';
-private $query_group_by = '';
-    private $option = '';
-    private $id_country = '';
-    private $config = null;
+	private $html = '';
+	private $query = '';
+	private $query_group_by = '';
+	private $option = '';
+	private $id_country = '';
+	private $config = null;
 
-    /**
-     * Construct
-     */
-    public function __construct() 
-    {
-	$this->name = 'kiyohcustomerreview';
-	$this->tab = 'advertising_marketing';
-	$this->version = '1.0';
-	$this->author = 'Interactivated.me';
-	$this->need_instance = 0;
-	$this->module_key = '5f10179e3d17156a29ba692b6dd640da';
+	/**
+	* Construct
+	*/
+	public function __construct()
+	{
+		$this->name = 'kiyohcustomerreview';
+		$this->tab = 'advertising_marketing';
+		$this->version = '1.0';
+		$this->author = 'Interactivated.me';
+		$this->need_instance = 0;
+		$this->module_key = '5f10179e3d17156a29ba692b6dd640da';
 
-	parent::__construct();
+		parent::__construct();
 
-	$this->getPsVersion();
+		$this->getPsVersion();
 
-	$this->displayName = $this->l('KiyOh Customer Review');
-	$this->description = $this->l('KiyOh.nl users can use this plug-in automatically collect customer reviews');
-	$this->ps_versions_compliancy = array('min' => '1.4', 'max' => _PS_VERSION_);
-	$this->config = unserialize(Configuration::get('KIYOH_SETTINGS'));
-	if (!extension_loaded('curl'))
+		$this->displayName = $this->l('KiyOh Customer Review');
+		$this->description = $this->l('KiyOh.nl users can use this plug-in automatically collect customer reviews');
+		$this->ps_versions_compliancy = array('min' => '1.4', 'max' => _PS_VERSION_);
+		$this->config = unserialize(Configuration::get('KIYOH_SETTINGS'));
+		if (!extension_loaded('curl'))
 	    $this->warning = $this->l('cURL extension must be enabled on your server to use this module.');
 
-	if (isset($this->config['WARNING']) && $this->config['WARNING'])
-	    $this->warning = $this->config['WARNING'];
-	if (_PS_VERSION_ < '1.5') include _PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php';
-    }
+		if (isset($this->config['WARNING']) && $this->config['WARNING'])
+		    $this->warning = $this->config['WARNING'];
+		if (_PS_VERSION_ < '1.5') include _PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php';
+	}
 
     /**
      * Get Ps Version
      * @return float
      */
-    private function getPsVersion() 
+    private function getPsVersion()
     {
 	return $this->psv = (float)Tools::substr(_PS_VERSION_, 0, 3);
     }
@@ -86,7 +86,7 @@ private $query_group_by = '';
      * Install
      * @return boolean
      */
-    public function install() 
+    public function install()
     {
 	if (!parent::install()) return false;
 	if ($this->psv >= 1.5) if (!$this->registerHook('actionOrderStatusUpdate')) return false;
@@ -111,7 +111,7 @@ private $query_group_by = '';
      * Uninstall
      * @return boolean
      */
-    public function uninstall() 
+    public function uninstall()
     {
 	if (!parent::uninstall())
 	    return false;
@@ -123,7 +123,7 @@ private $query_group_by = '';
      * Get Content
      * @return string
      */
-    public function getContent() 
+    public function getContent()
     {
 	$output = '<h2>Kiyoh Customer Review</h2>';
 	if (Tools::isSubmit('submitKiyoh'))
@@ -153,7 +153,7 @@ private $query_group_by = '';
      * Display Form
      * @return string
      */
-    public function displayForm() 
+    public function displayForm()
     {
 	$output = '
 		<form action="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'" method="post">
@@ -235,7 +235,7 @@ private $query_group_by = '';
      * @param array $config config
      * @return string
      */
-    public function selectHtml(array $config) 
+    public function selectHtml(array $config)
     {
 	$multiple = '';
 	if (isset($config['multiple'])) $multiple = $config['multiple'];
@@ -266,7 +266,7 @@ private $query_group_by = '';
      * @param mixed $params params
      * @return string|null
      */
-    public function hookActionOrderStatusUpdate($params) 
+    public function hookActionOrderStatusUpdate($params)
     {
 	$dispatched_order_statuses = $this->config['ORDER_STATUS'];
 	$object = $params['newOrderStatus'];
@@ -280,7 +280,7 @@ private $query_group_by = '';
      * @param mixed $params params
      * @return string|null
      */
-    public function hookUpdateOrderStatus($params) 
+    public function hookUpdateOrderStatus($params)
     {
 	$this->hookActionOrderStatusUpdate($params);
     }
@@ -290,7 +290,7 @@ private $query_group_by = '';
      * @param integer $order_id order
      * @return boolean
      */
-    protected function sendRequest($order_id) 
+    protected function sendRequest($order_id)
     {
 	$order = new Order((int)$order_id);
 	if ($this->psv >= 1.5) $customer = $order->getCustomer();
@@ -338,18 +338,17 @@ private $query_group_by = '';
 	$result = true;
 	if (!$err && $response == 'OK') $this->setInvitationSent($customer->id, $order->id_shop);
 	else $result = false;
-	
 	curl_close($curl);
 	return $result;
     }
-    
+
     /**
      * Check is invitation sent
      * @param integer $customer_id customer
      * @param integer $id_shop	   shop
      * @return boolean
      */
-    protected function isInvitationSent($customer_id, $id_shop) 
+    protected function isInvitationSent($customer_id, $id_shop)
     {
 	$sql = 'SELECT status FROM `'._DB_PREFIX_.'kiyohcustomerreview`
 		WHERE `id_customer` = '.(int)$customer_id.' AND `id_shop` = '.(int)$id_shop;
@@ -365,7 +364,7 @@ private $query_group_by = '';
      * @param integer $id_shop	   shop
      * @return string|null
      */
-    protected function setInvitationSent($customer_id, $id_shop) 
+    protected function setInvitationSent($customer_id, $id_shop)
     {
 	$sql = 'INSERT INTO `'._DB_PREFIX_.'kiyohcustomerreview`
 	    (`id_customer`, `status`, `id_shop`, `date_add`)
