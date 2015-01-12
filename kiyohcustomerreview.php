@@ -90,10 +90,7 @@ class KiyohCustomerReview extends Module
     public function install() 
     {
         if (!parent::install()) return false;
-        if ($this->psv >= 1.5)
-        {
-            if (!$this->registerHook('actionOrderStatusUpdate')) return false;
-        } 
+        if ($this->psv >= 1.5) if (!$this->registerHook('actionOrderStatusUpdate')) return false;
         elseif ($this->psv < 1.5) if (!$this->registerHook('updateOrderStatus')) return false;
 
         if (!in_array('curl', get_loaded_extensions()))
