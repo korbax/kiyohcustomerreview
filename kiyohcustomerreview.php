@@ -94,17 +94,14 @@ class KiyohCustomerReview extends Module
         {
             if (!$this->registerHook('actionOrderStatusUpdate')) return false;
         } 
-        elseif ($this->psv < 1.5)
-        {
-            if (!$this->registerHook('updateOrderStatus')) return false;
-        }
+        elseif ($this->psv < 1.5) if (!$this->registerHook('updateOrderStatus')) return false;
+
         if (!in_array('curl', get_loaded_extensions()))
         {
             $this->_errors[] = $this->l('Unable to install the module (php5-curl required).');
             return false;
         }
-        return Db::getInstance()
-                ->execute('CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'kiyohcustomerreview` (
+        return Db::getInstance()->execute('CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'kiyohcustomerreview` (
                 id_customer INTEGER UNSIGNED NOT NULL,
                 id_shop INTEGER UNSIGNED NOT NULL,
                 status VARCHAR(255) NOT NULL,
@@ -133,7 +130,8 @@ class KiyohCustomerReview extends Module
     public function getContent() 
     {
         $output = '<h2>Kiyoh Customer Review</h2>';
-        if (Tools::isSubmit('submitKiyoh')) {
+        if (Tools::isSubmit('submitKiyoh'))
+        {
             $this->config = array(
                 'CONNECTOR' => Tools::getValue('connector'),
                 'COMPANY_EMAIL' => Tools::getValue('company_email'),
@@ -244,26 +242,24 @@ class KiyohCustomerReview extends Module
     public function selectHtml(array $config) 
     {
         $multiple = '';
-        if (isset($config['multiple'])) {
-            $multiple = $config['multiple'];
-        }
+        if (isset($config['multiple'])) $multiple = $config['multiple'];
+
         $html = '<div id="kiyoh_'.$config['name'].'"><label for="'.$config['name'].'">'.$config['title'].'</label>
                         <div class="margin-form">
                             <select name="'.$config['name'].($multiple ? '[]' : '').'" '.$multiple.'>';
         $options = $config['options'];
         $tmp = $this->config[Tools::strtoupper($config['name'])];
         $config_value = Tools::getValue($config['name'], $tmp);
-        foreach ($options as $key => $value) {
+        foreach ($options as $key => $value)
+        {
             $selected = '';
-            if ($key == $config_value || $multiple && in_array($key, $config_value)) {
-                $selected = ' selected';
-            }
+            if ($key == $config_value || $multiple && in_array($key, $config_value)) $selected = ' selected';
+
             $html .= '<option value="'.$key.'"'.$selected.'>'.$value.'</option>';
         }
         $html .= '</select>';
-        if (isset($config['notice'])) {
-            $html .= $config['notice'];
-        }
+        if (isset($config['notice'])) $html .= $config['notice'];
+
         $html .= '</div>';
         $html .= '</div>';
         return $html;
@@ -276,15 +272,11 @@ class KiyohCustomerReview extends Module
      */
     public function hookActionOrderStatusUpdate($params) 
     {
-        //$event = $this->config['KIYOH_EVENT'];
         $dispatched_order_statuses = $this->config['ORDER_STATUS'];
         $object = $params['newOrderStatus'];
         $new_order_status = $object->id;
-        //if ($event === 'order_status_change'){
-        if (in_array($new_order_status, $dispatched_order_statuses)) {
-            $this->sendRequest($params['id_order']);
-        }
-        //}
+
+        if (in_array($new_order_status, $dispatched_order_statuses)) $this->sendRequest($params['id_order']);
     }
 
     /**
@@ -305,21 +297,13 @@ class KiyohCustomerReview extends Module
     protected function sendRequest($order_id) 
     {
         $order = new Order((int)$order_id);
-        if ($this->psv >= 1.5)
-        {
-            $customer = $order->getCustomer();
-        }
-        elseif ($this->psv < 1.5)
-        {
-            $customer = new Customer($order->id_customer);
-        }
+        if ($this->psv >= 1.5) $customer = $order->getCustomer();
+        elseif ($this->psv < 1.5) $customer = new Customer($order->id_customer);
 
         $email = $customer->email;
 
-        if ($this->isInvitationSent($customer->id, $order->id_shop))
-        {
-            return false; //invitation was already send
-        }
+        if ($this->isInvitationSent($customer->id, $order->id_shop)) return false; //invitation was already send
+
         $kiyoh_server = $this->config['SERVER'];
         $kiyoh_user = $this->config['COMPANY_EMAIL'];
         $kiyoh_connector = $this->config['CONNECTOR'];
@@ -352,24 +336,13 @@ class KiyohCustomerReview extends Module
         }
         if ($err || $response !== 'OK' || $this->config['DEBUG'])
         {
-            if (class_exists('PrestaShopLogger'))
-            {
-                PrestaShopLogger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
-            }
-            elseif (class_exists('Logger'))
-            {
-                Logger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response .'---Url:'.$url, 2, null, $this->name);
-            }
+            if (class_exists('PrestaShopLogger')) PrestaShopLogger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
+            elseif (class_exists('Logger')) Logger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
         }
         $result = true;
-        if (!$err && $response == 'OK')
-        {
-            $this->setInvitationSent($customer->id, $order->id_shop);
-        } 
-        else
-        {
-            $result = false;
-        }
+        if (!$err && $response == 'OK') $this->setInvitationSent($customer->id, $order->id_shop);
+        else $result = false;
+        
         curl_close($curl);
         return $result;
     }
