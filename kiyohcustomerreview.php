@@ -16,7 +16,7 @@
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @category  Name
+*  @category  Advertising marketing
 *  @package   Kiyohcustomerreview
 *  @author    Interactivated <contact@interactivated.me>
 *  @copyright 2014-2015 Interactivated.me
