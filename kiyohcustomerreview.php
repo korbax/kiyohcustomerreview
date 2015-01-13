@@ -97,14 +97,13 @@ class KiyohCustomerReview extends Module
 		$this->_errors[] = $this->l('Unable to install the module (php5-curl required).');
 		return false;
 	}
-	return Db::getInstance()->execute('CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'kiyohcustomerreview` (
+	return Db::getInstance()->execute('CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'kiyohcustomerreview`(
 		id_customer INTEGER UNSIGNED NOT NULL,
 		id_shop INTEGER UNSIGNED NOT NULL,
 		status VARCHAR(255) NOT NULL,
 		date_add DATETIME NOT NULL,
 		PRIMARY KEY(id_customer,id_shop)
-		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8'
-	);
+		)ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8');
 	}
 
 	/**
@@ -155,6 +154,10 @@ class KiyohCustomerReview extends Module
 	*/
 	public function displayForm()
 	{
+		$delaytext = '
+            Enter here the delay(number of days) after which you would like to send review invite email to your customer. 
+            This delay applies after customer event(order status change - to be selected at next option).
+            You may enter 0 to send review invite email immediately after customer event(order status change).';
 	$output = '
 		<form action="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'" method="post">
 			<fieldset class="width2">
@@ -179,7 +182,7 @@ class KiyohCustomerReview extends Module
 				<label>'.$this->l('Enter delay').'</label>
 				<div class="margin-form">
 					<input type="text" name="delay" value="'.Tools::safeOutput(Tools::getValue('delay', $this->config['DELAY'])).'" />
-					<p class="clear">'.$this->l('Enter here the delay(number of days) after which you would like to send review invite email to your customer. This delay applies after customer event(order status change - to be selected at next option). You may enter 0 to send review invite email immediately after customer event(order status change).').'</p>
+					<p class="clear">'.$this->l($delaytext).'</p>
 				</div>
 
 				';
@@ -190,38 +193,30 @@ class KiyohCustomerReview extends Module
 	foreach ($states as $state)
 		$options[$state['id_order_state']] = $state['name'];
 
-	$output .= $this->selectHtml(
-		array(
-		'title' => $this->l('Order Status Change Event'),
-		'name' => 'order_status',
-		'options' => $options,
-		'multiple' => 'multiple',
-		'notice' => '<p class="clear">'.$this->l('Enter here the event after which you would like to send review invite email to your customer.').'</p>'
-		)
-	);
+	$orderstatustext = 'Enter here the event after which you would like to send review invite email to your customer.';
+	$output .= $this->selectHtml(array(
+				'title' => $this->l('Order Status Change Event'),
+				'name' => 'order_status',
+				'options' => $options,
+				'multiple' => 'multiple',
+				'notice' => '<p class=\'clear\'>'.$this->l($orderstatustext).'</p>',));
 	unset($options);
 
-	$output .= $this->selectHtml(
-		array(
+	$output .= $this->selectHtml(array(
 		'title' => $this->l('Select Server'),
 		'name' => 'server',
 		'options' => array(
 			'kiyoh.nl' => $this->l('Kiyoh Netherlands'),
-		 	'kiyoh.com' => $this->l('Kiyoh International'),
-		),
-		)
-	);
+			'kiyoh.com' => $this->l('Kiyoh International'),
+		),));
 
-	$output .= $this->selectHtml(
-		array(
+	$output .= $this->selectHtml(array(
 		'title' => $this->l('Debug'),
 		'name' => 'debug',
 		'options' => array(
 				'0' => $this->l('No'),
 				'1' => $this->l('Yes'),
-		),
-		)
-	);
+			),));
 
 	$output .= '<div class="margin-form"><input type="submit" name="submitKiyoh" value="'.$this->l('Save').'" class="button" /></div>
 			</fieldset>
@@ -332,7 +327,8 @@ class KiyohCustomerReview extends Module
 	}
 	if ($err || $response !== 'OK' || $this->config['DEBUG'])
 	{
-	if (class_exists('PrestaShopLogger')) PrestaShopLogger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
+	if (class_exists('PrestaShopLogger')) PrestaShopLogger::addLog('Curl Error:'.
+				curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
 	elseif (class_exists('Logger')) Logger::addLog('Curl Error:'.curl_error($curl).'---Response:'.$response.'---Url:'.$url, 2, null, $this->name);
 	}
 	$result = true;
@@ -371,4 +367,4 @@ class KiyohCustomerReview extends Module
 	VALUES('.(int)$customer_id.', \'sent\', '.(int)$id_shop.', NOW())';
 	Db::getInstance()->executeS($sql);
 	}
-	}
+}
